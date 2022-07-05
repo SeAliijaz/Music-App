@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_app/Screens/music_player_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,21 +12,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Scaffold(
-        body: Center(
-          child: Text(
-            "MUSIC PLAYER APP-UI\n Also We will play song!",
-            style: TextStyle(
-              fontSize: 25.5,
-              fontWeight: FontWeight.bold,
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-        ),
-      ),
+      home: MusicPlayerScreen(),
     );
   }
 }

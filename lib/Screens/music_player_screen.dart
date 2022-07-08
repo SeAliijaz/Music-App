@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/Widgets/custom_card.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
@@ -6,10 +7,57 @@ class MusicPlayerScreen extends StatefulWidget {
   const MusicPlayerScreen({Key? key}) : super(key: key);
 
   @override
-  State<MusicPlayerScreen> createState() => _MusicPlayerScreenState();
+  State<MusicPlayerScreen> createState() {
+    return _MusicPlayerScreenState();
+  }
+}
+
+bool playing = false;
+IconData playButton = Icons.play_arrow;
+
+AudioPlayer? _player;
+AudioCache? cache;
+
+Duration position = Duration();
+Duration musicLength = Duration();
+
+Widget _slider() {
+  return Slider.adaptive(
+      value: position.inSeconds.toDouble(),
+      max: musicLength.inSeconds.toDouble(),
+      onChanged: (value) {
+        seekToSec(value.toInt());
+      });
+}
+
+void seekToSec(int sec) {
+  Duration newPosition = Duration(seconds: sec);
+  _player!.seek(newPosition);
 }
 
 class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _player = AudioPlayer();
+    cache = AudioCache(fixedPlayer: _player);
+
+    //now let's handle the audioplayer time
+    //this function will allow you to get the music duration
+    _player!.onDurationChanged.listen((d) {
+      setState(() {
+        musicLength = d;
+      });
+    });
+
+    //this function will allow us to move the cursor of the slider while we are playing the song
+    _player!.onAudioPositionChanged.listen((p) {
+      setState(() {
+        position = p;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,10 +93,13 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.asset('images/cover_art.png'),
+                      child: Image.asset('assets/cover_art.png'),
                     ),
                     Padding(
-                      padding: const EdgeInsets.all(12.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 2,
+                        vertical: 12,
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -90,59 +141,95 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
               padding: const EdgeInsets.all(12.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: const [
-                  Text('0:00'),
+                children: [
+                  ///here we have to add duration
+                  Text(
+                    "${position.inMinutes}:${position.inSeconds.remainder(60)}",
+                    style: TextStyle(
+                      fontSize: 15.0,
+                    ),
+                  ),
+
+                  ///These are just icons
                   Icon(Icons.shuffle),
                   Icon(Icons.repeat),
-                  Text('4:22')
+
+                  ///here we have to add music position
+                  Text(
+                    "${musicLength.inMinutes}:${musicLength.inSeconds.remainder(60)}",
+                    style: TextStyle(
+                      fontSize: 15.0,
+                    ),
+                  ),
                 ],
               ),
             ),
 
-            // linear bar
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: CustomCard(
-                child: LinearPercentIndicator(
-                  lineHeight: 10,
-                  percent: 0.8,
-                  progressColor: Colors.green,
-                  backgroundColor: Colors.transparent,
-                ),
+            ///Slider
+            Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  CustomCard(child: Expanded(child: _slider())),
+                ],
               ),
             ),
 
-            // previous song, pause play, skip next song
+            /// previous song, pause play, skip next song
             Padding(
               padding: const EdgeInsets.all(12.0),
               child: SizedBox(
                 height: 80,
                 child: Row(
-                  children: const [
+                  children: [
                     Expanded(
                       child: CustomCard(
-                          child: Icon(
-                        Icons.skip_previous,
-                        size: 32,
-                      )),
+                        child: IconButton(
+                            onPressed: () {},
+                            icon: const Center(
+                              child: Icon(
+                                Icons.skip_previous,
+                                size: 32,
+                              ),
+                            )),
+                      ),
                     ),
                     Expanded(
                       flex: 2,
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
                         child: CustomCard(
-                            child: Icon(
-                          Icons.play_arrow,
-                          size: 32,
-                        )),
+                          child: IconButton(
+                              onPressed: () {
+                                if (!playing) {
+                                  setState(() {
+                                    playButton = Icons.pause;
+                                    playing = true;
+                                  });
+                                } else {
+                                  setState(() {
+                                    playButton = Icons.play_arrow;
+                                    playing = false;
+                                  });
+                                }
+                              },
+                              icon: Center(
+                                child: Icon(playButton, size: 32),
+                              )),
+                        ),
                       ),
                     ),
                     Expanded(
                       child: CustomCard(
-                          child: Icon(
-                        Icons.skip_next,
-                        size: 32,
-                      )),
+                        child: IconButton(
+                            onPressed: () {},
+                            icon: const Center(
+                              child: Icon(
+                                Icons.skip_next,
+                                size: 32,
+                              ),
+                            )),
+                      ),
                     ),
                   ],
                 ),

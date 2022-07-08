@@ -1,7 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:music_app/Widgets/custom_card.dart';
-import 'package:percent_indicator/linear_percent_indicator.dart';
 
 class MusicPlayerScreen extends StatefulWidget {
   const MusicPlayerScreen({Key? key}) : super(key: key);
@@ -18,8 +17,8 @@ IconData playButton = Icons.play_arrow;
 AudioPlayer? _player;
 AudioCache? cache;
 
-Duration position = Duration();
-Duration musicLength = Duration();
+Duration position = const Duration();
+Duration musicLength = const Duration();
 
 Widget _slider() {
   return Slider.adaptive(
@@ -93,7 +92,10 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.asset('assets/cover_art.png'),
+                      child: Image.asset(
+                        'assets/cover_art.jpg',
+                        height: 300,
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(
@@ -107,7 +109,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Kota The Friend',
+                                '295-Song',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18,
@@ -115,7 +117,7 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                                 ),
                               ),
                               const Text(
-                                'Birdie',
+                                'Sidhu Moosewala',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 22,
@@ -138,39 +140,43 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
 
             // start time, shuffle button, repeat button, end time
             Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ///here we have to add duration
-                  Text(
-                    "${position.inMinutes}:${position.inSeconds.remainder(60)}",
-                    style: TextStyle(
-                      fontSize: 15.0,
+              padding: const EdgeInsets.symmetric(
+                vertical: 20,
+              ),
+              child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ///here we have to add duration
+                    Text(
+                      "${position.inMinutes}:${position.inSeconds.remainder(60)}",
+                      style: const TextStyle(
+                        fontSize: 15.0,
+                      ),
                     ),
-                  ),
 
-                  ///These are just icons
-                  Icon(Icons.shuffle),
-                  Icon(Icons.repeat),
+                    ///These are just icons
+                    const Icon(Icons.shuffle),
+                    const Icon(Icons.repeat),
 
-                  ///here we have to add music position
-                  Text(
-                    "${musicLength.inMinutes}:${musicLength.inSeconds.remainder(60)}",
-                    style: TextStyle(
-                      fontSize: 15.0,
+                    ///here we have to add music position
+                    Text(
+                      "${musicLength.inMinutes}:${musicLength.inSeconds.remainder(60)}",
+                      style: const TextStyle(
+                        fontSize: 15.0,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
             ///Slider
-            Container(
+            Padding(
+              padding: const EdgeInsets.all(12.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  CustomCard(child: Expanded(child: _slider())),
+                  Expanded(child: CustomCard(child: _slider())),
                 ],
               ),
             ),
@@ -202,11 +208,13 @@ class _MusicPlayerScreenState extends State<MusicPlayerScreen> {
                           child: IconButton(
                               onPressed: () {
                                 if (!playing) {
+                                  cache!.play("295_song.mp3");
                                   setState(() {
                                     playButton = Icons.pause;
                                     playing = true;
                                   });
                                 } else {
+                                  _player!.pause();
                                   setState(() {
                                     playButton = Icons.play_arrow;
                                     playing = false;
